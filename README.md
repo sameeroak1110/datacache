@@ -1,2 +1,5 @@
 # datacache
-Data-caching. Implemented as a service and as a package to be a part of some other service.
+**Data-caching for server back-end.**<br />
+Current implementation is not micro-service oriented.\
+
+TODO: Implementation as a micro-service.

@@ -51,7 +51,7 @@ type CacheStore map[Key]*Rec
 
 // function types for loading the cache and iteration callback.
 type LoadFunc func() (bool, []Payload)
-type RecHandlerFunc func(*Rec) bool
+type RecHandlerFunc func(interface{}) bool
 
 type DataCache struct {
 	// cache store-lock. there're 2 simple rules for store-lock primitives

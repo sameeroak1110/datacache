@@ -1354,7 +1354,7 @@ func (pDataCache *DataCache) Iterate(cacheName string, isIteratorProvided bool) 
 
 	for _, pRec := range pDataCache.cache {
 		//pRec.RecLock()
-		pDataCache.reciteratefn(pRec)
+		pDataCache.reciteratefn(pRec.PDataRec)
 		//pRec.RecUnlock()
 	}
 
@@ -1449,7 +1449,7 @@ func (pDataCache *DataCache) LoadAndIterate(isLoaderProvided bool, isIteratorPro
 	}
 
 	for _, pRec := range pDataCache.cache {
-		pDataCache.reciteratefn(pRec)
+		pDataCache.reciteratefn(pRec.PDataRec)
 	}
 
 	return true, nil

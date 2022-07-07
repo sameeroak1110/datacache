@@ -1155,6 +1155,69 @@ func (pDataCache *DataCache) GetDataRecWOLock(key Key) (bool, interface{}) {
 
 /* *****************************************************************************
 Description :
+Function checks if the given key exists in the cache or not. Returns true if it
+exists.
+
+Receiver    :
+pDataCache *DataCache: Instance of datacache.
+
+Arguments   :
+1> key Key: Key to the cache record.
+
+Return value:
+1> bool: true if key exists. false if it doesn't.
+
+Additional note: NA
+***************************************************************************** */
+func (pDataCache *DataCache) DoesKeyExist(key Key) bool {
+	if pDataCache == nil {
+		return false
+	}
+
+	pDataCache.ReadLock()
+	defer pDataCache.ReadUnlock()
+
+	if _, isOK := pDataCache.cache[key]; !isOK {
+		return false
+	}
+
+	return true
+}
+
+
+/* *****************************************************************************
+Description :
+Method checks if the given key exists in the cache or not. Returns true if it
+exists.
+
+Receiver    :
+pDataCache *DataCache: Instance of datacache.
+
+Arguments   :
+1> key Key: Key to the cache record.
+
+Return value:
+1> bool: true if key exists. false if it doesn't.
+
+Additional note:
+- As the name suggests, the method doesn't take any store lock. It rather assumes
+it's invoked in the RD or WR store lock. Result is unpredictable in case it's not.
+***************************************************************************** */
+func (pDataCache *DataCache) DoesKeyExistWOLock(key Key) bool {
+	if pDataCache == nil {
+		return false
+	}
+
+	if _, isOK := pDataCache.cache[key]; !isOK {
+		return false
+	}
+
+	return true
+}
+
+
+/* *****************************************************************************
+Description :
 Method returns number of records in the cache.
 
 Receiver    :

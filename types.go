@@ -71,7 +71,7 @@ type DataCache struct {
 
 //var singletonFlag bool       // should be guarded in WR store lock.
 
-type Initiator interface {
+/*type Initiator interface {
 	Load() (bool, []Payload)
 	RecordHandler(*Rec) bool
-}
+} */

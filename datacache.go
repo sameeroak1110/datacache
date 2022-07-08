@@ -700,9 +700,9 @@ Additional note:
 - Method shouldn't be invoked in any - WR or RD - store-lock. It takes WR store-lock and
 releases the same.
 ***************************************************************************** */
-func (pDataCache *DataCache) DeleteRec(key Key) (bool, int) {
+func (pDataCache *DataCache) DeleteRec(key Key) (int, error) {
 	if pDataCache == nil {
-		return false, 0
+		return -1, errors.New("Nil datacache")
 	}
 
 	pDataCache.cacheLock.Lock()
@@ -716,7 +716,7 @@ func (pDataCache *DataCache) DeleteRec(key Key) (bool, int) {
 	pRec, isOK := pDataCache.cache[key]
 	if !isOK {  // record with key "key" doesn't exist
 		pDataCache.cacheLock.Unlock()
-		return false, 0
+		return -1, errors.New("Key doesn't exist.")
 	}
 
 	// We're locking this record. This's tricky, however, serves the purpose.
@@ -747,11 +747,11 @@ func (pDataCache *DataCache) DeleteRec(key Key) (bool, int) {
 	} */
 
 	pTmpRecLock.Lock() // this go-routing waits on the blocking Lock() in case some other go-routine is already holding this record.
+	pTmpRecLock.Unlock()
 	keylist := pRec.KeyList
 	for _, key := range keylist {
 		delete(pDataCache.cache, key)
 	}
-	pTmpRecLock.Unlock()
 	pTmpRecLock = nil  // that's it, done. pRec will never be in use hereon.
 	pRec = nil
 
@@ -759,7 +759,7 @@ func (pDataCache *DataCache) DeleteRec(key Key) (bool, int) {
 	cnt := pDataCache.cnt
 	pDataCache.cacheLock.Unlock()
 
-	return true, cnt
+	return cnt, nil
 }
 
 

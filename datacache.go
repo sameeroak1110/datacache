@@ -153,6 +153,7 @@ Additional note: NA
 ***************************************************************************** */
 func (pRec *Rec) RecUnlock() {
 	if pRec != nil {
+		fmt.Println("Attempting to unlock record.")
 		if pRec.pRecLock != nil {
 			state := reflect.ValueOf(pRec.pRecLock).Elem().FieldByName("state")
 			isLocked := (state.Int() & mutexLocked) == mutexLocked

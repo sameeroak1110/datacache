@@ -21,8 +21,11 @@ import (
 	"fmt"
 	"sync"
 	"errors"
+	"reflect"
 	//"runtime/debug"
 )
+
+const mutexLocked = 1
 
 
 /* *****************************************************************************
@@ -149,8 +152,14 @@ Return value: NA
 Additional note: NA
 ***************************************************************************** */
 func (pRec *Rec) RecUnlock() {
-	if (pRec != nil) && (pRec.pRecLock != nil) {
-		pRec.pRecLock.Unlock()
+	if pRec != nil {
+		if pRec.pRecLock != nil {
+			state := reflect.ValueOf(pRec.pRecLock).Elem().FieldByName("state")
+			isLocked := (state.Int() & mutexLocked) == mutexLocked
+			if isLocked {
+				pRec.pRecLock.Unlock()
+			}
+		}
 		pRec = nil
 	}
 }

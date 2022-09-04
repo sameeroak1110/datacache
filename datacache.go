@@ -720,9 +720,8 @@ func (pDataCache *DataCache) DeleteKey(key Key) error {
 	pDataCache.cacheLock.Lock()
 	defer func() {
 		pDataCache.cacheLock.Unlock()
-		if err := recover().(error); err != nil {
+		if err := recover(); err != nil {
 			debug.PrintStack()
-			return err
 		}
 	}()
 

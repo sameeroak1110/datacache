@@ -22,7 +22,7 @@ import (
 	"sync"
 	"errors"
 	"reflect"
-	//"runtime/debug"
+	"runtime/debug"
 )
 
 const mutexLocked = 1
@@ -690,6 +690,44 @@ func (pDataCache *DataCache) ReAddAndGetRecWOLock(originalKey Key, newKey Key) (
 	prec.pRecLock.Lock()    // record is locked
 
 	return pDataCache.cnt, prec, nil
+}
+
+
+/* *****************************************************************************
+Description :
+Disassociates a key.
+
+Receiver    :
+pDataCache *DataCache: Datacache instance.
+
+Implements  : NA
+
+Arguments   :
+1> key Key: key of cache record to be removed from cache.
+
+Return value:
+1> error: Nil or non-nil error
+
+Additional note:
+- Method shouldn't be invoked in any - WR or RD - store-lock. It takes WR store-lock and
+releases the same.
+***************************************************************************** */
+func (pDataCache *DataCache) DeleteKey(key Key) error {
+	if pDataCache == nil {
+		return errors.New("Nil datacache")
+	}
+
+	pDataCache.cacheLock.Lock()
+	defer func() {
+		pDataCache.cacheLock.Unlock()
+		if err = recover().(error); err != nil {
+			debug.PrintStack()
+			return err
+		}
+	}()
+
+	delete(pDataCache.cache, key)
+	return nil
 }
 
 

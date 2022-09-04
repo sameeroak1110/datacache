@@ -712,7 +712,7 @@ Additional note:
 - Method shouldn't be invoked in any - WR or RD - store-lock. It takes WR store-lock and
 releases the same.
 ***************************************************************************** */
-func (pDataCache *DataCache) DeleteKey(key Key) error {
+func (pDataCache *DataCache) DeleteKey(key Key) (err error) {
 	if pDataCache == nil {
 		return errors.New("Nil datacache")
 	}
@@ -720,7 +720,8 @@ func (pDataCache *DataCache) DeleteKey(key Key) error {
 	pDataCache.cacheLock.Lock()
 	defer func() {
 		pDataCache.cacheLock.Unlock()
-		if err := recover(); err != nil {
+		if err1 := recover(); err1 != nil {
+			err = errors.New("Recovered from panic, dumping stack.")
 			debug.PrintStack()
 		}
 	}()

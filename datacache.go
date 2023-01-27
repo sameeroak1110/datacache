@@ -177,7 +177,7 @@ func (pRec *Rec) RecUnlock_1() {
 }
 
 // Unlocks locked datacache record.
-func (pRec *DataCacheRec) DataCacheRecUnlock() {
+func (pRec *Rec) DataCacheRecUnlock() {
 	if (pRec != nil) && (pRec.pRecLock != nil) {
 		pRec.pRecLock.Unlock()
 		pRec = nil

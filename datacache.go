@@ -136,6 +136,14 @@ func (pRec *Rec) RecLock() {
 	}
 }
 
+// Unlocks locked datacache record.
+func (pRec *Rec) RecUnlock() {
+    if (pRec != nil) && (pRec.pRecLock != nil) {
+        pRec.pRecLock.Unlock()
+        pRec = nil
+    }
+}
+
 
 /* *****************************************************************************
 Description : Unlocks locked datacache record.
@@ -151,7 +159,7 @@ Return value: NA
 
 Additional note: NA
 ***************************************************************************** */
-func (pRec *Rec) RecUnlock() {
+func (pRec *Rec) RecUnlock_1() {
 	if pRec != nil {
 		fmt.Println("Attempting to unlock record.")
 		if pRec.pRecLock != nil {
@@ -167,6 +175,15 @@ func (pRec *Rec) RecUnlock() {
 		pRec = nil
 	}
 }
+
+// Unlocks locked datacache record.
+func (pRec *DataCacheRec) DataCacheRecUnlock() {
+	if (pRec != nil) && (pRec.pRecLock != nil) {
+		pRec.pRecLock.Unlock()
+		pRec = nil
+	}
+}
+
 
 
 // Following 2 functions, one with WR store-lock and other without WR store-lock are going to add a record in the cache.

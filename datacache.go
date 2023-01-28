@@ -137,10 +137,14 @@ func (pRec *Rec) RecLock() {
 }
 
 // Unlocks locked datacache record.
-func (pRec *Rec) RecUnlock() {
+func (pRec *Rec) RecUnlock_1() {
     if (pRec != nil) && (pRec.pRecLock != nil) {
-        pRec.pRecLock.Unlock()
-        pRec = nil
+		pRec.pUnlockRecLock.Lock()
+		if pRec != nil {
+			pRec.pRecLock.Unlock()
+			pRec = nil
+			pRec.pUnlockRecLock.Unlock()
+		}
     }
 }
 
@@ -159,10 +163,18 @@ Return value: NA
 
 Additional note: NA
 ***************************************************************************** */
-func (pRec *Rec) RecUnlock_1() {
+func (pRec *Rec) RecUnlock() {
+	defer func() {  // this recover will guard from panicing in case pRec been made nil by some other goroutine.
+		if err1 := recover(); err1 != nil {
+			fmt.Println("Recovered from panic, dumping stack:")
+			debug.PrintStack()
+		}
+	}()
+
 	if pRec != nil {
 		fmt.Println("Attempting to unlock record.")
 		if pRec.pRecLock != nil {
+			pRec.pUnlockRecLock.Lock()
 			state := reflect.ValueOf(pRec.pRecLock).Elem().FieldByName("state")
 			isLocked := (state.Int() & mutexLocked) == mutexLocked
 			msg := "Record is already in unlocked state."
@@ -171,6 +183,7 @@ func (pRec *Rec) RecUnlock_1() {
 				msg = "Record has been unlocked."
 			}
 			fmt.Println(msg)
+			pRec.pUnlockRecLock.Unlock()
 		}
 		pRec = nil
 	}
@@ -243,6 +256,7 @@ func (pDataCache *DataCache) AddRec(keyList []Key, pRec interface{}, recExistsEr
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -304,6 +318,7 @@ func (pDataCache *DataCache) ForceAddRec(keyList []Key, pRec interface{}) (int, 
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -342,6 +357,7 @@ func (pDataCache *DataCache) AddAndGetRec(keyList []Key, pRec interface{}, recEx
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -380,6 +396,7 @@ func (pDataCache *DataCache) ForceAddAndGetRec(keyList []Key, pRec interface{}) 
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -526,6 +543,7 @@ func (pDataCache *DataCache) AddRecWOLock(keyList []Key, pRec interface{}, recEx
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -555,6 +573,7 @@ func (pDataCache *DataCache) ForceAddRecWOLock(keyList []Key, pRec interface{}) 
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -590,6 +609,7 @@ func (pDataCache *DataCache) AddAndGetRecWOLock(keyList []Key, pRec interface{},
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -622,6 +642,7 @@ func (pDataCache *DataCache) ForceAddAndGetRecWOLock(keyList []Key, pRec interfa
 		isActive: true,
 	}
 	pDataCacheRec.pRecLock = &sync.Mutex{}
+	pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 	for i, _ := range keyList {
 		pDataCache.cache[keyList[i]] = pDataCacheRec
@@ -1416,6 +1437,7 @@ func (pDataCache *DataCache) Load(isLoaderProvided bool) (bool, error) {
 			isActive: true,
 		}
 		pDataCacheRec.pRecLock = &sync.Mutex{}
+		pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 		//fmt.Printf("dbgrm::  dataRec: %#v\nkeyList: $#v\n", *pDataCacheRec.PDataRec, pDataCacheRec.KeyList)
 
 		for j, _ := range recList[i].KeyList {
@@ -1562,6 +1584,7 @@ func (pDataCache *DataCache) LoadAndIterate(isLoaderProvided bool, isIteratorPro
 			isActive: true,
 		}
 		pDataCacheRec.pRecLock = &sync.Mutex{}
+		pDataCacheRec.pUnlockRecLock = &sync.Mutex{}
 
 		for j, _ := range recList[i].KeyList {
 			pDataCache.cache[recList[i].KeyList[j]] = pDataCacheRec

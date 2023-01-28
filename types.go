@@ -41,6 +41,7 @@ type Rec struct {
 	- it's the caller's prerogative to unlock the locked-record.
 	- any further attempt to lock an already locked-record in the same go-routine results in a deadlock. */
 	pRecLock *sync.Mutex
+	pUnlockRecLock *sync.Mutex  // used specifically during unlocking.
 }
 
 

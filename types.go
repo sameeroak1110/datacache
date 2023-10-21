@@ -51,7 +51,8 @@ type Rec struct {
 type CacheStore map[Key]*Rec
 
 // function types for loading the cache and iteration callback.
-type LoadFunc func() (bool, []Payload)
+//type LoadFunc func() (bool, []Payload)
+type LoadFunc func() ([]Payload, error)
 type RecHandlerFunc func(interface{}) bool
 
 type DataCache struct {
@@ -62,7 +63,7 @@ type DataCache struct {
 	// for instance, when a record is added to or removed from the cache. equally, when the cache is iterated.
 	// and rd store-lock is to be invoked when typically a cache record is to fetched for update or just to fetch
 	// record data.
-	cacheLock sync.RWMutex       // cache store-lock. rd store lock/unlock and wr store lock/unlock opeeations.
+	cacheLock sync.RWMutex       // cache store-lock. rd store lock/unlock and wr store lock/unlock operations.
 	cache CacheStore             // actual cache store
 	loadfn LoadFunc              // function loads the cache during server boot-up.
 	reciteratefn RecHandlerFunc  // each record is handled by iterator.

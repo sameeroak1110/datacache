@@ -138,6 +138,13 @@ func (pRec *Rec) RecLock() {
 
 // Unlocks locked datacache record.
 func (pRec *Rec) RecUnlock_1() {
+	defer func() {  // this recover will guard from panicing in case pRec been made nil by some other goroutine.
+		if err1 := recover(); err1 != nil {
+			fmt.Println("Recovered from panic, dumping stack:")
+			debug.PrintStack()
+		}
+	}()
+
     if (pRec != nil) && (pRec.pRecLock != nil) {
 		pRec.pUnlockRecLock.Lock()
 		if pRec != nil {
@@ -163,7 +170,7 @@ Return value: NA
 
 Additional note: NA
 ***************************************************************************** */
-func (pRec *Rec) RecUnlock() {
+func RecUnlock(pRec *Rec) {
 	defer func() {  // this recover will guard from panicing in case pRec been made nil by some other goroutine.
 		if err1 := recover(); err1 != nil {
 			fmt.Println("Recovered from panic, dumping stack:")
@@ -176,7 +183,7 @@ func (pRec *Rec) RecUnlock() {
 		if pRec.pRecLock != nil {
 			pRec.pUnlockRecLock.Lock()
 			state := reflect.ValueOf(pRec.pRecLock).Elem().FieldByName("state")
-			isLocked := (state.Int() & mutexLocked) == mutexLocked
+			isLocked := (state.Int() & 1) == 1
 			msg := "Record is already in unlocked state."
 			if isLocked {
 				pRec.pRecLock.Unlock()

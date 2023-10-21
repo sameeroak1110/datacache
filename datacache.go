@@ -1431,8 +1431,8 @@ func (pDataCache *DataCache) Load(isLoaderProvided bool) (bool, error) {
 		return false, err
 	}
 
-	isOK, recList := pDataCache.loadfn()
-	if !isOK {
+	recList, err := pDataCache.loadfn()
+	if err != nil {
 		err = errors.New("Load function failed.")
 		return false, err
 	}
@@ -1578,8 +1578,8 @@ func (pDataCache *DataCache) LoadAndIterate(isLoaderProvided bool, isIteratorPro
 		return false, err
 	}
 
-	isOK, recList := pDataCache.loadfn()
-	if !isOK {
+	recList, err := pDataCache.loadfn()
+	if err != nil {
 		err = errors.New("Load function failed.")
 		return false, err
 	}

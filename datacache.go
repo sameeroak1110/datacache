@@ -1668,7 +1668,7 @@ func (pDataCache *DataCache) AuxIterate(cacheName string, recHandler RecHandlerF
 	for _, pRec := range pDataCache.cache {
 		pRec.RecLock()
 		recHandler(pRec)
-		pRec.RecUnlock()
+		RecUnlock(pRec)
 	}
 
 	return true, nil
